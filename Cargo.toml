@@ -1,0 +1,13 @@
+[package]
+name = "xor-ll"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+criterion = { version = "0.8", features = ["html_reports"] }
+
+[dev-dependencies]
+
+[[bench]]
+name = "linked_list_bench"
+harness = false

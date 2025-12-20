@@ -1,0 +1,1 @@
+rust import of xor linkedlist idea I saw in tsoding's video: https://gist.github.com/rexim/6f2349b548fdead7ed790d1a40915ae1#file-ll-c
