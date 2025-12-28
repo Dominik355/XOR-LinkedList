@@ -210,4 +210,3 @@ fn mixed_push_pop_sequences() {
     assert_eq!(list.pop_back(), Some(2));
     assert!(list.pop_front().is_none());
 }
-

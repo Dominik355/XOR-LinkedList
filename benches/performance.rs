@@ -1,9 +1,7 @@
+use criterion::{BatchSize, Criterion, criterion_group, criterion_main};
 use std::collections::LinkedList as StdLinkedList;
 use std::hint::black_box;
-use criterion::{criterion_group, criterion_main, BatchSize, Criterion, Throughput};
 use xor_ll::LinkedList as XorLinkedList;
-
-const ITER: u64 = 1 << 24;
 
 fn bench_push_front(c: &mut Criterion) {
     let mut group = c.benchmark_group("push_front");
@@ -158,10 +156,12 @@ fn bench_pop_back(c: &mut Criterion) {
 }
 
 criterion_group!(
-    name = benches;
-    config = Criterion::default();
-    targets = bench_push_front, bench_push_back, bench_pop_front, bench_pop_back
+    benches,
+    bench_push_front,
+    bench_push_back,
+    bench_pop_front,
+    bench_pop_back
 );
-
-criterion_main!(benches);
-
+criterion_main! {
+    benches
+}

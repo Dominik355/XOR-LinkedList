@@ -15,6 +15,7 @@ impl<T> Node<T> {
         Node { value, xored: 0 }
     }
 
+    #[allow(clippy::boxed_local)]
     fn into_element(self: Box<Self>) -> T {
         self.value
     }
@@ -53,6 +54,12 @@ pub struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 
     len: usize,
+}
+
+impl<T> Default for LinkedList<T> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<T> LinkedList<T> {
@@ -215,7 +222,7 @@ impl<T> LinkedList<T> {
     }
 
     fn node_ref(node: &Option<NonNull<Node<T>>>) -> Option<&T> {
-        node.as_ref().map(|node| unsafe { &(*node.as_ref()).value })
+        node.as_ref().map(|node| unsafe { &node.as_ref().value })
     }
 
     fn mut_node_ref(node: &mut Option<NonNull<Node<T>>>) -> Option<&mut T> {
@@ -237,7 +244,7 @@ impl<T> LinkedList<T> {
         assert!(at <= self.len, "Cannot split off at a nonexistent index");
 
         if at == 0 {
-            return mem::replace(self, Self::new());
+            return mem::take(self);
         } else if at == self.len {
             return Self::new();
         }
@@ -261,10 +268,7 @@ impl<T> LinkedList<T> {
         // now establish a new one
         let mut new_list = Self::new();
         unsafe {
-            current = current.map(|n| {
-                (*n.as_ptr()).xored ^= prev_ptr;
-                n
-            });
+            current = current.inspect(|n| (*n.as_ptr()).xored ^= prev_ptr);
         }
         new_list.begin = current;
         new_list.end = original_end;
@@ -468,10 +472,6 @@ impl<T: PartialEq> PartialEq for LinkedList<T> {
     fn eq(&self, other: &Self) -> bool {
         self.len() == other.len() && self.iter().eq(other)
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        self.len() != other.len() || self.iter().ne(other)
-    }
 }
 
 impl<T: Eq> Eq for LinkedList<T> {}
@@ -593,7 +593,7 @@ mod tests {
 
     #[test]
     fn node_next_test() {
-        let mut list = make_list(&(5..=10).into_iter().collect::<Vec<_>>());
+        let list = make_list(&(5..=10).into_iter().collect::<Vec<_>>());
 
         let mut printed = vec![];
 
@@ -822,7 +822,7 @@ mod tests {
 
     #[test]
     fn iter_mut_allows_mutation() {
-        let mut list = make_list(&[1, 2, 3]);
+        let list = make_list(&[1, 2, 3]);
         for v in list.iter_mut() {
             *v *= 2;
         }
@@ -866,7 +866,7 @@ mod tests {
 
     #[test]
     fn iter_mut_next_back_mutates_from_back() {
-        let mut list = make_list(&[1, 2, 3]);
+        let list = make_list(&[1, 2, 3]);
         let mut iter = list.iter_mut();
         assert_eq!(iter.next_back(), Some(&mut 3));
         assert_eq!(iter.next_back(), Some(&mut 2));
@@ -906,7 +906,7 @@ mod tests {
 
     #[test]
     fn iter_mut_size_hint_and_exact_size() {
-        let mut list = make_list(&[1, 2, 3]);
+        let list = make_list(&[1, 2, 3]);
         let mut iter = list.iter_mut();
         assert_eq!(iter.size_hint(), (3, Some(3)));
         iter.next();
