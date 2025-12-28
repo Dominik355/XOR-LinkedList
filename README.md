@@ -1,6 +1,6 @@
 rust import of xor linkedlist idea I saw in tsoding's video: https://gist.github.com/rexim/6f2349b548fdead7ed790d1a40915ae1#file-ll-c
 
-Implementation allocates 2/3 of a memory that std LinkedList
+Implementation allocates 2/3 of a std'LinkedList memory
 
 ```
  Iters: 1000
